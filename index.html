@@ -27,7 +27,6 @@
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
-        <script src="js/multi-style-layer.js"></script>
         <script src="js/leaflet.rotatedMarker.js"></script>
         <script src="js/leaflet.pattern.js"></script>
         <script src="js/leaflet-hash.js"></script>
@@ -45,7 +44,7 @@
         <script>
         var map = L.map('map', {
             zoomControl:false, maxZoom:28, minZoom:1
-        }).fitBounds([[63.42640049482231,10.39807697814658],[63.453553251488735,10.503523194278548]]);
+        }).fitBounds([[62.933885965194335,8.793415798114967],[63.80274442720327,12.166366888581429]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -344,32 +343,25 @@
         function pop_FerdigutbygdefeltiTrondheim20122025_5(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <th scope="row">Feltnr</th>\
-                        <td>' + (feature.properties['Feltnr'] !== null ? autolinker.link(String(feature.properties['Feltnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Feltnr'] !== null ? autolinker.link(String(feature.properties['Feltnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Boligfeltnavn</th>\
-                        <td>' + (feature.properties['Boligfeltnavn'] !== null ? autolinker.link(String(feature.properties['Boligfeltnavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Boligfeltnavn'] !== null ? autolinker.link(String(feature.properties['Boligfeltnavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Plantype</th>\
-                        <td>' + (feature.properties['Plantype'] !== null ? autolinker.link(String(feature.properties['Plantype']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Plantype'] !== null ? autolinker.link(String(feature.properties['Plantype']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Saksnr</th>\
-                        <td class="visible-with-data" id="Saksnr">' + (feature.properties['Saksnr'] !== null ? autolinker.link(String(feature.properties['Saksnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Saksnr'] !== null ? autolinker.link(String(feature.properties['Saksnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">PlanID</th>\
-                        <td class="visible-with-data" id="PlanID">' + (feature.properties['PlanID'] !== null ? autolinker.link(String(feature.properties['PlanID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['PlanID'] !== null ? autolinker.link(String(feature.properties['PlanID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Vedtaksdato</th>\
-                        <td>' + (feature.properties['Vedtaksdato'] !== null ? autolinker.link(String(feature.properties['Vedtaksdato']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Vedtaksdato'] !== null ? autolinker.link(String(feature.properties['Vedtaksdato']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Ferdig utbygd</th>\
-                        <td>' + (feature.properties['Ferdig utbygd'] !== null ? autolinker.link(String(feature.properties['Ferdig utbygd']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Ferdig utbygd'] !== null ? autolinker.link(String(feature.properties['Ferdig utbygd']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -379,48 +371,32 @@
 			layer.bindPopup(content, { maxHeight: 400 });
         }
 
-        var pattern_FerdigutbygdefeltiTrondheim20122025_5_0 = new L.StripePattern({
-            weight: 0.3,
-            spaceWeight: 2.0,
-            color: '#c324d9',
-            opacity: 0.5,
-            spaceOpacity: 0,
-            angle: 225
-        });
-        pattern_FerdigutbygdefeltiTrondheim20122025_5_0.addTo(map);
         function style_FerdigutbygdefeltiTrondheim20122025_5_0() {
             return {
                 pane: 'pane_FerdigutbygdefeltiTrondheim20122025_5',
-                stroke: false,
-                fillOpacity: 1,
-                fillPattern: pattern_FerdigutbygdefeltiTrondheim20122025_5_0,
-                interactive: true,
-            }
-        }
-        function style_FerdigutbygdefeltiTrondheim20122025_5_1() {
-            return {
-                pane: 'pane_FerdigutbygdefeltiTrondheim20122025_5',
                 opacity: 1,
-                color: 'rgba(195,36,217,0.5)',
+                color: 'rgba(195,36,217,1.0)',
                 dashArray: '',
-                lineCap: 'square',
-                lineJoin: 'bevel',
-                weight: 2.0,
-                fillOpacity: 0,
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(128,231,54,0.0)',
                 interactive: true,
             }
         }
         map.createPane('pane_FerdigutbygdefeltiTrondheim20122025_5');
         map.getPane('pane_FerdigutbygdefeltiTrondheim20122025_5').style.zIndex = 405;
         map.getPane('pane_FerdigutbygdefeltiTrondheim20122025_5').style['mix-blend-mode'] = 'normal';
-        var layer_FerdigutbygdefeltiTrondheim20122025_5 = new L.geoJson.multiStyle(json_FerdigutbygdefeltiTrondheim20122025_5, {
+        var layer_FerdigutbygdefeltiTrondheim20122025_5 = new L.geoJson(json_FerdigutbygdefeltiTrondheim20122025_5, {
             attribution: '',
             interactive: true,
             dataVar: 'json_FerdigutbygdefeltiTrondheim20122025_5',
             layerName: 'layer_FerdigutbygdefeltiTrondheim20122025_5',
             pane: 'pane_FerdigutbygdefeltiTrondheim20122025_5',
             onEachFeature: pop_FerdigutbygdefeltiTrondheim20122025_5,
-            styles: [style_FerdigutbygdefeltiTrondheim20122025_5_0,style_FerdigutbygdefeltiTrondheim20122025_5_1,]
+            style: style_FerdigutbygdefeltiTrondheim20122025_5_0,
         });
         bounds_group.addLayer(layer_FerdigutbygdefeltiTrondheim20122025_5);
         function pop_BoligfeltTrondheimsregionen4august2026_6(feature, layer) {
@@ -651,15 +627,15 @@
         });
         lay.addTo(map);
         setBounds();
-        resetLabels([layer_TR2026Plansoner_1,layer_FerdigutbygdefeltiTrondheim20122025_5]);
+        resetLabels([layer_TR2026Plansoner_1]);
         map.on("zoomend", function(){
-            resetLabels([layer_TR2026Plansoner_1,layer_FerdigutbygdefeltiTrondheim20122025_5]);
+            resetLabels([layer_TR2026Plansoner_1]);
         });
         map.on("layeradd", function(){
-            resetLabels([layer_TR2026Plansoner_1,layer_FerdigutbygdefeltiTrondheim20122025_5]);
+            resetLabels([layer_TR2026Plansoner_1]);
         });
         map.on("layerremove", function(){
-            resetLabels([layer_TR2026Plansoner_1,layer_FerdigutbygdefeltiTrondheim20122025_5]);
+            resetLabels([layer_TR2026Plansoner_1]);
         });
         </script>        
     </body>
