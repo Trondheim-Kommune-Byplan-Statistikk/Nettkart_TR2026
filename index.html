@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="data/TR2026Plansoner_1.js"></script>
+        <script src="data/FerdigutbygdefeltiTrondheim20122025_2.js"></script>
+        <script src="data/BoligfeltTrondheimsregionen4august2026_3.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[62.82527884660267,8.365480002577032],[63.89637693891785,12.536695630536032]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    var img = popup._contentNode.querySelector('td img');
+                    if (img) {
+                        // If already loaded (cache), update immediately
+                        if (img.complete && img.naturalHeight > 0) {
+                            popup.update();
+                        } else {
+                            img.addEventListener('load', function() {
+                                popup.update();
+                            });
+                            img.addEventListener('error', function() {
+                                popup.update();
+                            });
+                        }
+                    }
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    // Aggiorna il popup quando il video carica i metadati
+                    video.addEventListener('loadedmetadata', function() {
+                        popup.update();
+                    });
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_Bakgrunnskart_0');
+        map.getPane('pane_Bakgrunnskart_0').style.zIndex = 400;
+        var layer_Bakgrunnskart_0 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_Bakgrunnskart_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        layer_Bakgrunnskart_0;
+        map.addLayer(layer_Bakgrunnskart_0);
+        function pop_TR2026Plansoner_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plansonenr</th>\
+                        <td>' + (feature.properties['Plansonenr'] !== null ? autolinker.link(String(feature.properties['Plansonenr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plansonenavn</th>\
+                        <td>' + (feature.properties['Plansonenavn'] !== null ? autolinker.link(String(feature.properties['Plansonenavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Barneskolenr</th>\
+                        <td>' + (feature.properties['Barneskolenr'] !== null ? autolinker.link(String(feature.properties['Barneskolenr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Barneskolenavn</th>\
+                        <td>' + (feature.properties['Barneskolenavn'] !== null ? autolinker.link(String(feature.properties['Barneskolenavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ungdomsskolenr</th>\
+                        <td>' + (feature.properties['Ungdomsskolenr'] !== null ? autolinker.link(String(feature.properties['Ungdomsskolenr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ungdomsskolenavn</th>\
+                        <td>' + (feature.properties['Ungdomsskolenavn'] !== null ? autolinker.link(String(feature.properties['Ungdomsskolenavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_TR2026Plansoner_1_0() {
+            return {
+                pane: 'pane_TR2026Plansoner_1',
+                opacity: 1,
+                color: 'rgba(33,1,177,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(67,148,214,0.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_TR2026Plansoner_1');
+        map.getPane('pane_TR2026Plansoner_1').style.zIndex = 401;
+        map.getPane('pane_TR2026Plansoner_1').style['mix-blend-mode'] = 'normal';
+        var layer_TR2026Plansoner_1 = new L.geoJson(json_TR2026Plansoner_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_TR2026Plansoner_1',
+            layerName: 'layer_TR2026Plansoner_1',
+            pane: 'pane_TR2026Plansoner_1',
+            onEachFeature: pop_TR2026Plansoner_1,
+            style: style_TR2026Plansoner_1_0,
+        });
+        bounds_group.addLayer(layer_TR2026Plansoner_1);
+        map.addLayer(layer_TR2026Plansoner_1);
+        function pop_FerdigutbygdefeltiTrondheim20122025_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Feltnr</th>\
+                        <td>' + (feature.properties['Feltnr'] !== null ? autolinker.link(String(feature.properties['Feltnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Boligfeltnavn</th>\
+                        <td>' + (feature.properties['Boligfeltnavn'] !== null ? autolinker.link(String(feature.properties['Boligfeltnavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plantype</th>\
+                        <td>' + (feature.properties['Plantype'] !== null ? autolinker.link(String(feature.properties['Plantype']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Saksnr</th>\
+                        <td class="visible-with-data" id="Saksnr">' + (feature.properties['Saksnr'] !== null ? autolinker.link(String(feature.properties['Saksnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">PlanID</th>\
+                        <td class="visible-with-data" id="PlanID">' + (feature.properties['PlanID'] !== null ? autolinker.link(String(feature.properties['PlanID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Vedtaksdato</th>\
+                        <td>' + (feature.properties['Vedtaksdato'] !== null ? autolinker.link(String(feature.properties['Vedtaksdato']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ferdig utbygd</th>\
+                        <td>' + (feature.properties['Ferdig utbygd'] !== null ? autolinker.link(String(feature.properties['Ferdig utbygd']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        var pattern_FerdigutbygdefeltiTrondheim20122025_2_0 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#4daf4a',
+            opacity: 0.5,
+            spaceOpacity: 0,
+            angle: 225
+        });
+        pattern_FerdigutbygdefeltiTrondheim20122025_2_0.addTo(map);
+        function style_FerdigutbygdefeltiTrondheim20122025_2_0() {
+            return {
+                pane: 'pane_FerdigutbygdefeltiTrondheim20122025_2',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_FerdigutbygdefeltiTrondheim20122025_2_0,
+                interactive: true,
+            }
+        }
+        function style_FerdigutbygdefeltiTrondheim20122025_2_1() {
+            return {
+                pane: 'pane_FerdigutbygdefeltiTrondheim20122025_2',
+                opacity: 1,
+                color: 'rgba(77,175,74,0.5)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_FerdigutbygdefeltiTrondheim20122025_2');
+        map.getPane('pane_FerdigutbygdefeltiTrondheim20122025_2').style.zIndex = 402;
+        map.getPane('pane_FerdigutbygdefeltiTrondheim20122025_2').style['mix-blend-mode'] = 'normal';
+        var layer_FerdigutbygdefeltiTrondheim20122025_2 = new L.geoJson.multiStyle(json_FerdigutbygdefeltiTrondheim20122025_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FerdigutbygdefeltiTrondheim20122025_2',
+            layerName: 'layer_FerdigutbygdefeltiTrondheim20122025_2',
+            pane: 'pane_FerdigutbygdefeltiTrondheim20122025_2',
+            onEachFeature: pop_FerdigutbygdefeltiTrondheim20122025_2,
+            styles: [style_FerdigutbygdefeltiTrondheim20122025_2_0,style_FerdigutbygdefeltiTrondheim20122025_2_1,]
+        });
+        bounds_group.addLayer(layer_FerdigutbygdefeltiTrondheim20122025_2);
+        function pop_BoligfeltTrondheimsregionen4august2026_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Feltnr</th>\
+                        <td>' + (feature.properties['Feltnr'] !== null ? autolinker.link(String(feature.properties['Feltnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Boligfeltnavn</th>\
+                        <td>' + (feature.properties['Boligfeltnavn'] !== null ? autolinker.link(String(feature.properties['Boligfeltnavn']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Komplanstatus</th>\
+                        <td>' + (feature.properties['Komplanstatus'] !== null ? autolinker.link(String(feature.properties['Komplanstatus']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Regplanstatus</th>\
+                        <td>' + (feature.properties['Regplanstatus'] !== null ? autolinker.link(String(feature.properties['Regplanstatus']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plantype</th>\
+                        <td>' + (feature.properties['Plantype'] !== null ? autolinker.link(String(feature.properties['Plantype']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Saksnr</th>\
+                        <td class="visible-with-data" id="Saksnr">' + (feature.properties['Saksnr'] !== null ? autolinker.link(String(feature.properties['Saksnr']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Detaljplan planID</th>\
+                        <td class="visible-with-data" id="Detaljplan planID">' + (feature.properties['Detaljplan planID'] !== null ? autolinker.link(String(feature.properties['Detaljplan planID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Detaljplan vedtatt</th>\
+                        <td class="visible-with-data" id="Detaljplan vedtatt">' + (feature.properties['Detaljplan vedtatt'] !== null ? autolinker.link(String(feature.properties['Detaljplan vedtatt']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Områdeplan planID</th>\
+                        <td class="visible-with-data" id="Områdeplan planID">' + (feature.properties['Områdeplan planID'] !== null ? autolinker.link(String(feature.properties['Områdeplan planID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Boligpotensial</th>\
+                        <td>' + (feature.properties['Boligpotensial'] !== null ? autolinker.link(String(feature.properties['Boligpotensial']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BT1: Ene- og tomannsbolig</th>\
+                        <td>' + (feature.properties['BT1: Ene- og tomannsbolig'] !== null ? autolinker.link(String(feature.properties['BT1: Ene- og tomannsbolig']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BT2: Vertikaldelt bolig (Rekkehus m.m.)</th>\
+                        <td>' + (feature.properties['BT2: Vertikaldelt bolig (Rekkehus m.m.)'] !== null ? autolinker.link(String(feature.properties['BT2: Vertikaldelt bolig (Rekkehus m.m.)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BT3: Horisontaldelt bolig</th>\
+                        <td>' + (feature.properties['BT3: Horisontaldelt bolig'] !== null ? autolinker.link(String(feature.properties['BT3: Horisontaldelt bolig']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BT4: Blokk 3.etg.+</th>\
+                        <td>' + (feature.properties['BT4: Blokk 3.etg.+'] !== null ? autolinker.link(String(feature.properties['BT4: Blokk 3.etg.+']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BT5: Studentbolig</th>\
+                        <td>' + (feature.properties['BT5: Studentbolig'] !== null ? autolinker.link(String(feature.properties['BT5: Studentbolig']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Boligbygging pågår</th>\
+                        <td>' + (feature.properties['Boligbygging pågår'] !== null ? autolinker.link(String(feature.properties['Boligbygging pågår']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Fra: Tidligste innflyttingsår</th>\
+                        <td>' + (feature.properties['Fra: Tidligste innflyttingsår'] !== null ? autolinker.link(String(feature.properties['Fra: Tidligste innflyttingsår']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Til: Tidligst ferdig</th>\
+                        <td>' + (feature.properties['Til: Tidligst ferdig'] !== null ? autolinker.link(String(feature.properties['Til: Tidligst ferdig']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Modningsgrad</th>\
+                        <td>' + (feature.properties['Modningsgrad'] !== null ? autolinker.link(String(feature.properties['Modningsgrad']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_BoligfeltTrondheimsregionen4august2026_3_0(feature) {
+            switch(String(feature.properties['Modningsgrad'])) {
+                case '0: Vedtatt plan under utbygging':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,0.5)',
+                interactive: true,
+            }
+                    break;
+                case '1: Vedtatt detalj- eller områdeplan (uten krav)':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(178,223,138,0.5)',
+                interactive: true,
+            }
+                    break;
+                case '2: Igangsatt detaljplan':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(224,227,32,0.5)',
+                interactive: true,
+            }
+                    break;
+                case '3: Vedtatt områdeplan (med krav om detaljplan)':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,222,136,0.5)',
+                interactive: true,
+            }
+                    break;
+                case '4: Igangsatt områdeplan':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,191,111,0.5)',
+                interactive: true,
+            }
+                    break;
+                case '5: Kommuneplanens arealdel (KPA) eller vedtatt KDP':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,157,48,0.5)',
+                interactive: true,
+            }
+                    break;
+                case '6: Igangsatt kommunedelplan (KDP)':
+                    return {
+                pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(139,142,144,0.5)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_BoligfeltTrondheimsregionen4august2026_3');
+        map.getPane('pane_BoligfeltTrondheimsregionen4august2026_3').style.zIndex = 403;
+        map.getPane('pane_BoligfeltTrondheimsregionen4august2026_3').style['mix-blend-mode'] = 'normal';
+        var layer_BoligfeltTrondheimsregionen4august2026_3 = new L.geoJson(json_BoligfeltTrondheimsregionen4august2026_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_BoligfeltTrondheimsregionen4august2026_3',
+            layerName: 'layer_BoligfeltTrondheimsregionen4august2026_3',
+            pane: 'pane_BoligfeltTrondheimsregionen4august2026_3',
+            onEachFeature: pop_BoligfeltTrondheimsregionen4august2026_3,
+            style: style_BoligfeltTrondheimsregionen4august2026_3_0,
+        });
+        bounds_group.addLayer(layer_BoligfeltTrondheimsregionen4august2026_3);
+        map.addLayer(layer_BoligfeltTrondheimsregionen4august2026_3);
+        var overlaysTree = [
+            {label: 'Boligfelt Trondheimsregionen 4. august 2026<br /><table><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_Vedtattplanunderutbyggingpermatrikkelen2juni20260.png" /></td><td>Vedtatt plan under utbygging (per matrikkelen 2. juni 2026)</td></tr><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_Vedtattdetaljellerområdeplanutenkravomdetaljplan1.png" /></td><td>Vedtatt detalj- eller områdeplan (uten krav om detaljplan)</td></tr><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_Igangsattdetaljplan2.png" /></td><td>Igangsatt detaljplan</td></tr><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_Vedtattområdeplanmedkravomdetaljregulering3.png" /></td><td>Vedtatt områdeplan (med krav om detaljregulering)</td></tr><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_Igangsattområdeplan4.png" /></td><td>Igangsatt områdeplan</td></tr><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_KommuneplanensarealdelKPAellervedtattKDP5.png" /></td><td>Kommuneplanens arealdel (KPA) eller vedtatt KDP</td></tr><tr><td style="text-align: center;"><img src="legend/BoligfeltTrondheimsregionen4august2026_3_IgangsattkommunedelplanKDP6.png" /></td><td>Igangsatt kommunedelplan (KDP)</td></tr></table>', layer: layer_BoligfeltTrondheimsregionen4august2026_3},
+            {label: '<img src="legend/FerdigutbygdefeltiTrondheim20122025_2.png" /> Ferdig utbygde felt i Trondheim 2012-2025', layer: layer_FerdigutbygdefeltiTrondheim20122025_2},
+            {label: '<img src="legend/TR2026Plansoner_1.png" /> TR2026 Plansoner', layer: layer_TR2026Plansoner_1},
+            {label: "Bakgrunnskart", layer: layer_Bakgrunnskart_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        resetLabels([layer_TR2026Plansoner_1]);
+        map.on("zoomend", function(){
+            resetLabels([layer_TR2026Plansoner_1]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_TR2026Plansoner_1]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_TR2026Plansoner_1]);
+        });
+        </script>        
+    </body>
+</html>
